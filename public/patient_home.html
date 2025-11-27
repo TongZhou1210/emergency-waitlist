@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Patient Home</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+<header>
+    <h1>Hospital Triage – Patient</h1>
+    <p class="subtitle">Welcome to the triage portal</p>
+</header>
+
+<!-- Use patient-main to control layout specifically for the home screen -->
+<main class="patient-main">
+    <div class="card">
+
+        <!-- replace promo.jpg  -->
+        <div class="hero-block">
+            <img src="../images/triage.png" alt="Triage promo" class="hero-image">
+        </div>
+
+        <!-- 2. Wait-time section: label + number centered as a block -->
+        <div class="wait-time-section">
+            <p class="muted-text">Your estimated wait time now</p>
+            <div id="waitTimeNumber" class="wait-time-number">25 mins</div>
+        </div>
+
+        <div class="section">
+            <a class="btn btn-primary btn-block"
+               href="patient_register.html"
+               id="joinButton"
+               onclick="markJoining()">
+                Join the Wait List
+            </a>
+        </div>
+
+    </div>
+</main>
+
+<!-- Bottom Navigation -->
+<div class="bottom-nav">
+    <a class="nav-link active" href="patient_home.html">
+        <div class="nav-icon"></div>
+        Home
+    </a>
+    <a class="nav-link" href="patient_info.html" id="myInfoNav">
+        <div class="nav-icon"></div>
+        My Info
+    </a>
+    <a class="nav-link" href="patient_status.html" id="myStatusNav">
+        <div class="nav-icon"></div>
+        My Status
+    </a>
+</div>
+
+<!-- Page script: wait-time logic + "must join wait list before accessing" guards -->
+<script>
+    /* Demo patient data.
+       In a real app this should come from the backend / database. */
+    const DEMO_PATIENTS = [
+        { id: "00123", wait: 25 },
+        { id: "00124", wait: 40 },
+        { id: "00125", wait: 15 }
+    ];
+
+    // LocalStorage key to remember whether the user has joined the wait list
+    const REG_KEY = "triageHasRegistered";
+
+    function hasRegistered() {
+        return localStorage.getItem(REG_KEY) === "true";
+    }
+
+    // Mark as "joined wait list".
+    // In a real app you would probably set this only after the register form is submitted successfully.
+    function markJoining() {
+        localStorage.setItem(REG_KEY, "true");
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        /* 2. Compute the maximum estimated wait time among all patients
+              and display it on the home screen. */
+        const waitEl = document.getElementById("waitTimeNumber");
+        if (waitEl && DEMO_PATIENTS.length > 0) {
+            const maxWait = Math.max(...DEMO_PATIENTS.map(p => p.wait));
+            waitEl.textContent = maxWait + " mins";
+        }
+
+        /* 4 & 5. Before joining the wait list,
+                  "Check your status", "My Info" and "My Status" should not be accessible. */
+        const statusLink = document.getElementById("statusLink");
+        const myInfoLink = document.getElementById("myInfoNav");
+        const myStatusLink = document.getElementById("myStatusNav");
+
+        function guardClick(e) {
+            if (!hasRegistered()) {
+                e.preventDefault();
+                alert("Please join the wait list first.");
+            }
+        }
+
+        if (statusLink) {
+            statusLink.addEventListener("click", guardClick);
+        }
+        if (myInfoLink) {
+            myInfoLink.addEventListener("click", guardClick);
+        }
+        if (myStatusLink) {
+            myStatusLink.addEventListener("click", guardClick);
+        }
+    });
+</script>
+
+</body>
+</html>

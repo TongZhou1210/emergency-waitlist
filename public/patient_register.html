@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Patient Register</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+<header>
+    <h1>Patient Register</h1>
+    <p class="subtitle">Submit your information</p>
+</header>
+
+<main>
+    <div class="card">
+
+        <form id="registerForm">
+            <div class="form-group">
+                <label for="regName">Name</label>
+                <input id="regName" type="text" placeholder="Enter your full name">
+            </div>
+
+            <div class="form-group">
+                <label for="regAge">Age</label>
+                <input id="regAge" type="number" placeholder="Age">
+            </div>
+
+            <div class="form-group">
+                <label for="regSymptoms">Symptoms</label>
+                <textarea id="regSymptoms" placeholder="Describe your symptoms"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="regPain">Pain Level (1–10)</label>
+                <input id="regPain" type="number" min="1" max="10" placeholder="5">
+            </div>
+
+            <div class="form-group">
+                <label for="regNotes">Notes (allergies, medications…)</label>
+                <textarea id="regNotes" placeholder="Optional notes"></textarea>
+            </div>
+
+            <button type="button"
+                    class="btn btn-primary btn-block"
+                    onclick="handleRegisterSubmit()">
+                Submit
+            </button>
+        </form>
+
+
+    </div>
+</main>
+
+<!-- Bottom Navigation -->
+<div class="bottom-nav">
+    <a class="nav-link active" href="patient_home.html">
+        <div class="nav-icon"></div>
+        Home
+    </a>
+    <a class="nav-link" href="patient_info.html" id="myInfoNav">
+        <div class="nav-icon"></div>
+        My Info
+    </a>
+    <a class="nav-link" href="patient_status.html" id="myStatusNav">
+        <div class="nav-icon"></div>
+        My Status
+    </a>
+</div>
+
+<script>
+    const REG_KEY = "triageHasRegistered";
+
+    // Check whether the user has already joined the wait list (registered)
+    function hasRegistered() {
+        return localStorage.getItem(REG_KEY) === "true";
+    }
+
+    // Handle form submission
+    function handleRegisterSubmit() {
+        const name = document.getElementById("regName").value.trim();
+        const age = document.getElementById("regAge").value.trim();
+        const symptoms = document.getElementById("regSymptoms").value.trim();
+        const painStr = document.getElementById("regPain").value.trim();
+
+        // Basic required field validation
+        if (!name || !age || !symptoms || !painStr) {
+            alert("Please complete all required fields.");
+            return;
+        }
+
+        const pain = Number(painStr);
+        if (isNaN(pain) || pain < 1 || pain > 10) {
+            alert("Pain level must be a number between 1 and 10.");
+            return;
+        }
+
+        /* In a real application, this is where the data would be
+           submitted to the backend server. */
+
+        // Front-end demo: mark user as registered
+        localStorage.setItem(REG_KEY, "true");
+
+        alert("Registration submitted successfully.");
+        window.location.href = "patient_status.html";
+    }
+
+    // Guard logic for bottom navigation and "Check your status" link
+    document.addEventListener("DOMContentLoaded", function () {
+        const statusLink = document.getElementById("statusLinkRegister");
+        const myInfoNav = document.getElementById("myInfoNavRegister");
+        const myStatusNav = document.getElementById("myStatusNavRegister");
+
+        // Prevent navigation if user has not registered yet
+        function guardClick(e) {
+            if (!hasRegistered()) {
+                e.preventDefault();
+                alert("Please join the wait list first.");
+            }
+        }
+
+        if (statusLink) statusLink.addEventListener("click", guardClick);
+        if (myInfoNav) myInfoNav.addEventListener("click", guardClick);
+        if (myStatusNav) myStatusNav.addEventListener("click", guardClick);
+    });
+</script>
+
+</body>
+</html>
