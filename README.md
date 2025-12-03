@@ -41,6 +41,7 @@ emergency-waitlist-1/
 
 ## 3. Database Setup (PostgreSQL)
 
+```sql
 CREATE DATABASE emergency_waitlist;
 3.2 Create required tables
 CREATE TABLE levels (
@@ -65,6 +66,7 @@ status            TEXT NOT NULL DEFAULT 'waiting',
 created_at        TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 updated_at        TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+```
  
 ---
 
@@ -159,13 +161,13 @@ module.exports = pool;
 ---
 
 ## 9. Demo Instructions
-- 1.	Ensure PostgreSQL is running
-- 2.	Create DB + tables (Section 3)
-- 3.	Update db.js with your password
-- 4.	Run:
+- Ensure PostgreSQL is running
+- Create DB + tables (Section 3)
+- Update db.js with your password
+- Run:
         npm install
         node server.js
-- 5.	Visit:
+- Visit:
 
 - Patient home → http://localhost:3000/patient_home.html
 - Admin home → http://localhost:3000/admin_home.html
@@ -192,5 +194,5 @@ This project demonstrates:
 ---
 
 ## Author
-Tong Zhou
-Nachi Duong
+- Tong Zhou
+- Nachi Duong
