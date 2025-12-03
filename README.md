@@ -43,7 +43,7 @@ emergency-waitlist-1/
 
 ```sql
 CREATE DATABASE emergency_waitlist;
-3.2 Create required tables
+
 CREATE TABLE levels (
 triage_level_code SMALLINT PRIMARY KEY,
 label             TEXT NOT NULL
