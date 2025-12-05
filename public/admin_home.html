@@ -45,29 +45,7 @@
                 </tr>
                 </thead>
                 <tbody id="patientTableBody">
-                <!-- Example patient row -->
-                <tr data-patient-id="00123">
-                    <td>
-                        <!-- Patient info link carries id param -->
-                        <a href="admin_patient_info.html?id=00123"
-                           class="patient-id-link"
-                           title="View patient details">
-                            00123
-                        </a>
-                    </td>
-                    <td>John Doe</td>
-                    <td>29</td>
-                    <td><span class="pill pill-level-2">Level 2</span></td>
-                    <td>25 mins</td>
-                    <td>
-                        <!-- Update button also carries id param -->
-                        <a href="admin_update_priority.html?id=00123"
-                           class="btn btn-primary">
-                            Update
-                        </a>
-                    </td>
-                </tr>
-                <!-- If you add more patients, copy the row above and change data-patient-id and URLs -->
+                <!-- Rows will be loaded from the database -->
                 </tbody>
             </table>
         </div>
@@ -79,6 +57,67 @@
 </main>
 
 <script>
+    // Load patients from backend and build the table
+    async function loadPatients() {
+        const tbody = document.getElementById('patientTableBody');
+        const messageEl = document.getElementById('adminSearchMessage');
+
+        // temporary loading row
+        tbody.innerHTML = `<tr><td colspan="6">Loading...</td></tr>`;
+        messageEl.textContent = '';
+
+        try {
+            const res = await fetch('/api/patients');
+            if (!res.ok) {
+                tbody.innerHTML = `<tr><td colspan="6">Error loading patients.</td></tr>`;
+                return;
+            }
+
+            const patients = await res.json();
+
+            if (!patients.length) {
+                tbody.innerHTML = `<tr><td colspan="6">No patients in the queue.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = '';
+
+            patients.forEach(p => {
+                const tr = document.createElement('tr');
+                tr.setAttribute('data-patient-id', p.id);
+
+                tr.innerHTML = `
+                    <td>
+                        <a href="admin_patient_info.html?id=${p.id}"
+                           class="patient-id-link"
+                           title="View patient details">
+                            ${p.id}
+                        </a>
+                    </td>
+                    <td>${p.name}</td>
+                    <td>${p.age ?? ''}</td>
+                    <td>
+                        <span class="pill pill-level-${p.triage_level_code}">
+                            Level ${p.triage_level_code}
+                        </span>
+                    </td>
+                    <td>${p.estimated_wait_min} mins</td>
+                    <td>
+                        <a href="admin_update_priority.html?id=${p.id}"
+                           class="btn btn-primary">
+                            Update
+                        </a>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        } catch (e) {
+            console.error(e);
+            tbody.innerHTML = `<tr><td colspan="6">Network error loading patients.</td></tr>`;
+        }
+    }
+
+    // Filter rows by patient ID (works on dynamically loaded rows)
     function filterPatients() {
         const input = document.getElementById('adminSearchId');
         const messageEl = document.getElementById('adminSearchMessage');
@@ -113,6 +152,9 @@
             messageEl.textContent = '';
         }
     }
+
+    // Load patient list when the page is ready
+    document.addEventListener('DOMContentLoaded', loadPatients);
 </script>
 
 </body>

@@ -69,61 +69,76 @@
 </div>
 
 <script>
-    const REG_KEY = "triageHasRegistered";
+  const REG_KEY = "triageHasRegistered";
+  const ID_KEY  = "triagePatientId";
 
-    // Check whether the user has already joined the wait list (registered)
-    function hasRegistered() {
-        return localStorage.getItem(REG_KEY) === "true";
+  function hasRegistered() {
+    return localStorage.getItem(REG_KEY) === "true";
+  }
+
+  // Handle form submission
+  async function handleRegisterSubmit() {
+    const name      = document.getElementById("regName").value.trim();
+    const age       = document.getElementById("regAge").value.trim();
+    const symptoms  = document.getElementById("regSymptoms").value.trim();
+    const painStr   = document.getElementById("regPain").value.trim();
+    const notes     = document.getElementById("regNotes").value.trim();
+
+    if (!name || !age || !symptoms || !painStr) {
+      alert("Please complete all required fields.");
+      return;
     }
 
-    // Handle form submission
-    function handleRegisterSubmit() {
-        const name = document.getElementById("regName").value.trim();
-        const age = document.getElementById("regAge").value.trim();
-        const symptoms = document.getElementById("regSymptoms").value.trim();
-        const painStr = document.getElementById("regPain").value.trim();
-
-        // Basic required field validation
-        if (!name || !age || !symptoms || !painStr) {
-            alert("Please complete all required fields.");
-            return;
-        }
-
-        const pain = Number(painStr);
-        if (isNaN(pain) || pain < 1 || pain > 10) {
-            alert("Pain level must be a number between 1 and 10.");
-            return;
-        }
-
-        /* In a real application, this is where the data would be
-           submitted to the backend server. */
-
-        // Front-end demo: mark user as registered
-        localStorage.setItem(REG_KEY, "true");
-
-        alert("Registration submitted successfully.");
-        window.location.href = "patient_status.html";
+    const pain = Number(painStr);
+    if (isNaN(pain) || pain < 1 || pain > 10) {
+      alert("Pain level must be a number between 1 and 10.");
+      return;
     }
 
-    // Guard logic for bottom navigation and "Check your status" link
-    document.addEventListener("DOMContentLoaded", function () {
-        const statusLink = document.getElementById("statusLinkRegister");
-        const myInfoNav = document.getElementById("myInfoNavRegister");
-        const myStatusNav = document.getElementById("myStatusNavRegister");
+    try {
+      const res = await fetch("/api/patients", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name,
+          age,
+          symptoms,
+          pain_level: pain,
+          notes
+        })
+      });
 
-        // Prevent navigation if user has not registered yet
-        function guardClick(e) {
-            if (!hasRegistered()) {
-                e.preventDefault();
-                alert("Please join the wait list first.");
-            }
-        }
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        alert("Error submitting registration: " + (err.error || res.statusText));
+        return;
+      }
 
-        if (statusLink) statusLink.addEventListener("click", guardClick);
-        if (myInfoNav) myInfoNav.addEventListener("click", guardClick);
-        if (myStatusNav) myStatusNav.addEventListener("click", guardClick);
-    });
+      const data = await res.json();
+
+      // Remember that this browser has a registered patient
+      localStorage.setItem(REG_KEY, "true");
+      // Save the patient ID so we can auto-fill status later
+      localStorage.setItem(ID_KEY, data.id);
+
+      // Tell the patient their ID clearly
+      alert(
+        `Registration submitted successfully.\n\n` +
+        `Your patient ID is: ${data.id}\n` +
+        `Please keep this ID so you can check your status later.`
+      );
+
+      window.location.href = "patient_status.html";
+    } catch (e) {
+      console.error(e);
+      alert("Network error submitting registration.");
+    }
+  }
+
+  // (you can keep or remove the guard logic here if you had it)
 </script>
+
+
 
 </body>
 </html>
