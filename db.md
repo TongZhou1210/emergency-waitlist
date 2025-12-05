@@ -87,6 +87,6 @@ You can view it directly in GitHub.
 
 **Team Members:**
 - **Tong Zhou**
-- **Na Chi Duong**
+- **Nha Chi Duong**
 
 ---

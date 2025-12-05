@@ -194,5 +194,6 @@ This project demonstrates:
 ---
 
 ## Author
-- Tong Zhou
-- Nachi Duong
+**Team Members:**
+- **Tong Zhou**
+- **Nha Chi Duong**
